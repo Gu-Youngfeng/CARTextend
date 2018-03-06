@@ -7,18 +7,16 @@ import weka.core.Instance;
 public class Launcher {
 
 	public static void main(String[] args) {
-		SampleReader sr = new SampleReader("files/x264.csv");
+		
+		SampleReader srTrain = new SampleReader("files/x264.csv");
+		SampleReader srTest = new SampleReader("files/x264-testing.csv");
 //		sr.showSamples();
 		
-		List<Instance> lsSamples = sr.getSamples();
-		String[] arrFeatures = sr.getFeatures();
+		List<Instance> training = srTrain.getSamples();
+		List<Instance> testing = srTest.getSamples();
 		
-		CARTree tree = new CARTree(lsSamples);
-//		TreeNode crtTree = tree.buildModel();
-		tree.printModel();
-		
-		
-
+		CARTModel model = new CARTModel(training, testing);
+		model.predictSamples();
 	}
 
 }

@@ -56,14 +56,14 @@ public class CARTree {
 	
 	public void printModel(){
 		goIteration(samples, features);
-		for(Integer node: featureList) System.out.print(node + " - ");
+//		for(Integer node: featureList) System.out.print(node + " - ");
 		TreeNode rootNode = constructTree(featureList);
 		rootNode.showTree(rootNode);
 	}
 	
 	public TreeNode buildModel(){
 		goIteration(samples, features);
-		for(Integer node: featureList) System.out.print(node + " - ");
+//		for(Integer node: featureList) System.out.print(node + " - ");
 		TreeNode rootNode = constructTree(featureList);
 		return rootNode;
 	}
@@ -73,7 +73,7 @@ public class CARTree {
 		
 		if(index == -1){
 			System.out.println("[Leaf Node]:" + getAVEPerformance(S));
-			featureList.add((int)getAVEPerformance(S)*(-1));
+			featureList.add(0-(int)Math.round(getAVEPerformance(S))); // use Math.round()
 		}else{
 			int currentFeature = F[index];
 			featureList.add(currentFeature);
@@ -131,7 +131,7 @@ public class CARTree {
 //				System.out.println(tempNode.getNodeName() + " Rightchild is " + curNode.getNodeName());				
 				TreeNode tempNode = stNode.pop();				
 				tempNode.setRightChild(curNode);
-				System.out.println("[POP]:" + tempNode.getNodeName());
+//				System.out.println("[POP]:" + tempNode.getNodeName());
 				
 			}
 		}
