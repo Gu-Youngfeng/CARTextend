@@ -2,6 +2,7 @@ package cn.edu.whu.cstar.yongfeng;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import weka.core.Instance;
 
@@ -9,12 +10,14 @@ public class CARTree {
 	
 	/** all valid configurations */
 	private List<Instance> samples;
-	/** features in configuration */
-	private String[] features;
+//	/** features in configuration */
+	private int[] features;
 	/** 1st parameter in CART algorithm */
 	private double minBucket;
 	/** 2nd parameter in CART algorithm */
 	private double minSplit;
+	
+	private List<Integer> featureList;
 	
 	/***
 	 * <p>Initializing the CART with <b>{@link#samples}</b> and <b>{@link#features}</b>. 
@@ -22,11 +25,16 @@ public class CARTree {
 	 * @param s samples
 	 * @param f features
 	 */
-	CARTree(List<Instance> s, String[] f){
+	CARTree(List<Instance> s){
 		
 		// Input of CART
 		samples = s;
-		features = f;
+		int numAttr = s.get(0).numAttributes();
+		features = new int[numAttr];
+		for(int i=0; i<numAttr; i++){
+			features[i] = i;
+		}
+//		features = f;
 		
 		// Parameters setting of CART
 		int lenSample = s.size();
@@ -43,22 +51,95 @@ public class CARTree {
 		System.out.println("[minSplit ]: " + minSplit);
 		System.out.println("[minBucket]: " + minBucket);
 		
+		featureList = new ArrayList<Integer>();
 	}
 	
-	public void run(){
+	public void printModel(){
 		goIteration(samples, features);
+		for(Integer node: featureList) System.out.print(node + " - ");
+		TreeNode rootNode = constructTree(featureList);
+		rootNode.showTree(rootNode);
 	}
 	
-	public void goIteration(List<Instance> S, String[] F){
+	public TreeNode buildModel(){
+		goIteration(samples, features);
+		for(Integer node: featureList) System.out.print(node + " - ");
+		TreeNode rootNode = constructTree(featureList);
+		return rootNode;
+	}
+	
+	public void goIteration(List<Instance> S, int[] F){
 		int index = getBetterSplitIndex(S, F);
+		
 		if(index == -1){
-			System.out.println("[STOP AT AVE]:" + getAVEPerformance(S));
+			System.out.println("[Leaf Node]:" + getAVEPerformance(S));
+			featureList.add((int)getAVEPerformance(S)*(-1));
 		}else{
+			int currentFeature = F[index];
+			featureList.add(currentFeature);
 			List<List<Instance>> lsSLR = getSplitTwoSamples(S, index);
-			goIteration(lsSLR.get(0), F);
-			goIteration(lsSLR.get(1), F);
+//			System.out.println("[Left  S]:" + currentFeature);
+			goIteration(lsSLR.get(0), F); // visit left SL
+//			System.out.println("[Right S]:" + currentFeature);
+			goIteration(lsSLR.get(1), F); // visit right SR 
 		}
 	} 
+	
+	public TreeNode constructTree(List<Integer> features){
+		Stack<TreeNode> stNode = new Stack<TreeNode>();
+//		LinkedList<> nodeStruct =
+		if(features == null || features.size() == 0){
+			System.out.println("[ERROR]: featureList is null!");
+			return null;
+		}
+				
+		List<TreeNode> lsNode = new ArrayList<TreeNode>();
+		for(Integer featureName: features){
+			TreeNode node = new TreeNode(featureName);
+			lsNode.add(node);
+		}
+		
+		TreeNode rootNode = lsNode.get(0);
+		stNode.push(rootNode);
+		
+		for(int i=1; i<lsNode.size(); i++){
+			TreeNode preNode = lsNode.get(i-1);
+			TreeNode curNode = lsNode.get(i);
+			
+			if(preNode.getNodeName()>=0 && curNode.getNodeName()<0){
+				// feature node -> leaf node
+				preNode.setLeftChild(curNode);
+//				System.out.println(preNode.getNodeName() + " Leftchild is " + curNode.getNodeName());
+
+			}else if (preNode.getNodeName()>=0 && curNode.getNodeName()>=0){
+				// feature node -> feature node
+				preNode.setLeftChild(curNode);
+				stNode.push(curNode);
+//				System.out.println(preNode.getNodeName() + " Leftchild is " + curNode.getNodeName());
+//				System.out.println("[PUSH]:" + curNode.getNodeName());
+				
+			}else if(preNode.getNodeName()<0 && curNode.getNodeName()>=0){
+				// leaf node -> feature node
+				TreeNode tempNode = stNode.pop();
+				tempNode.setRightChild(curNode);
+				stNode.push(curNode);
+//				System.out.println("[POP]:" + tempNode.getNodeName());
+//				System.out.println(tempNode.getNodeName() + " Rightchild is " + curNode.getNodeName());				
+				
+			}else{
+				// leaf node -> leaf node
+//				System.out.println(tempNode.getNodeName() + " Rightchild is " + curNode.getNodeName());				
+				TreeNode tempNode = stNode.pop();				
+				tempNode.setRightChild(curNode);
+				System.out.println("[POP]:" + tempNode.getNodeName());
+				
+			}
+		}
+		
+//		System.out.println("[STACK]: is " + stNode.isEmpty());
+		
+		return rootNode;
+	}
 	
 	/***
 	 * <p>To split sample set <b>S</b> with the given feature list <b>F</b> for one time.
@@ -68,7 +149,7 @@ public class CARTree {
 	 * @param F
 	 * @return betterSplitIndex the best split feature index.
 	 */
-	private int getBetterSplitIndex(List<Instance> S, String[] F){
+	private int getBetterSplitIndex(List<Instance> S, int[] F){
 		int betterSplitIndex = -1;
 		
 		if(S.size() > minSplit){ // stop further split
@@ -92,7 +173,7 @@ public class CARTree {
 //				System.out.println("[FN]: " + F[i] + ", [SL]: " + SL.size() + ", [SR]: " + SR.size());
 				if(SL.size() < minBucket || SR.size() < minBucket){ // stop further split		
 					arrSel[i] = Double.MAX_VALUE;
-//					System.out.println("[arrSel]: " + arrSel[i] + "\n");
+//					System.out.println("[STOP]: minBucket is too small. " + F[i]);
 				}else{
 					/** calculate the squared error loss of both*/
 					arrSel[i] = getSquaredErrorLoss(SL, SR);
@@ -100,14 +181,16 @@ public class CARTree {
 				}
 			}
 			
-			for(int k=0; k<arrSel.length; k++){
-				System.out.print(arrSel[k] + ", ");
-			}
-			System.out.println("");
+//			for(int k=0; k<arrSel.length; k++){
+//				System.out.print(arrSel[k] + ", ");
+//			}
+//			System.out.println("");
 			betterSplitIndex = getMinValue(arrSel); // which feature can get the minimal squared error loss  
 			System.out.println("[feature]: " + F[betterSplitIndex] + ", [index]: " + betterSplitIndex + ", [loss]: " + arrSel[betterSplitIndex]);
+			
 		}else{
-			System.out.println("[STOP]: minSplit is too small.");
+//			System.out.println("[STOP]: minSplit is too small.");
+//			System.out.println("[STOP AT AVE]:" + getAVEPerformance(S));			
 			return -1;
 		}
 		
@@ -197,10 +280,10 @@ public class CARTree {
 		}
 		for(int i=0; i<S.size(); i++){
 			double tempPer = S.get(i).value(S.get(i).numAttributes()-1);
-			System.out.print(tempPer + ", ");
+//			System.out.print(tempPer + ", ");
 			sum += tempPer;
 		}
-		System.out.println("");
+//		System.out.println("");
 		double ave = (sum*1.0)/(S.size()*1.0);
 		
 		return ave;

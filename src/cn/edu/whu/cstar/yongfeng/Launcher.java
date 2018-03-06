@@ -13,8 +13,11 @@ public class Launcher {
 		List<Instance> lsSamples = sr.getSamples();
 		String[] arrFeatures = sr.getFeatures();
 		
-		CARTree tree = new CARTree(lsSamples, arrFeatures);
-		tree.run();
+		CARTree tree = new CARTree(lsSamples);
+//		TreeNode crtTree = tree.buildModel();
+		tree.printModel();
+		
+		
 
 	}
 
