@@ -10,7 +10,7 @@ public class Launcher {
 		SampleReader sr = new SampleReader("files/x264.csv");
 //		sr.showSamples();
 		
-		List<List<Instance>> ls2T = sr.generate2T(15);
+		List<List<Instance>> ls2T = sr.generate2T(6);
 		List<Instance> training = ls2T.get(0);
 		List<Instance> testing = ls2T.get(1);
 		
