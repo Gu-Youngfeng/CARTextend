@@ -48,27 +48,33 @@ public class CARTree {
 		minBucket = minBucket>=2?minBucket:2;
 		minSplit = minSplit>=4?minSplit:4;
 		
-		System.out.println("[minSplit ]: " + minSplit);
-		System.out.println("[minBucket]: " + minBucket);
+		System.out.println("### Experimental Parameters:");
+		System.out.println("[sample size]: " + samples.size());
+		System.out.println("[minSplit   ]: " + minSplit);
+		System.out.println("[minBucket  ]: " + minBucket);
 		
 		featureList = new ArrayList<Integer>();
 	}
 	
-	public void printModel(){
-		goIteration(samples, features);
-//		for(Integer node: featureList) System.out.print(node + " - ");
-		TreeNode rootNode = constructTree(featureList);
-		rootNode.showTree(rootNode);
-	}
-	
+	/***
+	 * <p>return the CARTree model built by the training samples.</p>
+	 * @return TreeNode
+	 */
 	public TreeNode buildModel(){
+		
+		System.out.println("\n### Building CARTree Model:");
 		goIteration(samples, features);
 //		for(Integer node: featureList) System.out.print(node + " - ");
 		TreeNode rootNode = constructTree(featureList);
+		
+		System.out.println("\n### Construct of CARTree:");
+		rootNode.showTree(rootNode);
+		System.out.println("");
+		
 		return rootNode;
 	}
 	
-	public void goIteration(List<Instance> S, int[] F){
+	private void goIteration(List<Instance> S, int[] F){
 		int index = getBetterSplitIndex(S, F);
 		
 		if(index == -1){
@@ -85,7 +91,7 @@ public class CARTree {
 		}
 	} 
 	
-	public TreeNode constructTree(List<Integer> features){
+	private TreeNode constructTree(List<Integer> features){
 		Stack<TreeNode> stNode = new Stack<TreeNode>();
 //		LinkedList<> nodeStruct =
 		if(features == null || features.size() == 0){

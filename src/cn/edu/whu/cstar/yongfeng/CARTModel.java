@@ -25,7 +25,6 @@ public class CARTModel {
 	 * @param sample
 	 * @return performance
 	 */
-	@SuppressWarnings("unused")
 	private double predictOneSample(Instance sample){
 		double performance = -1.0d;
 		TreeNode pointer = cartTree;
@@ -35,7 +34,7 @@ public class CARTModel {
 			if(pointer.getLeftChild() == null && pointer.getRightChild() == null){
 				// this is a performance
 				performance = node*(-1);
-				System.out.println("[predicted performance]: " + performance);
+//				System.out.println("[predicted performance]: " + performance);
 				break;
 			}else{
 				// this is a feature index

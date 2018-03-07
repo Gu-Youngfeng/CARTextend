@@ -1,7 +1,5 @@
 package cn.edu.whu.cstar.yongfeng;
 
-import weka.core.Instance;
-
 public class TreeNode {
 
 	private TreeNode leftChild;
@@ -36,8 +34,6 @@ public class TreeNode {
 	}
 	
 	public void showTree(TreeNode node){
-		
-//		System.out.println("");
 		
 		if(node != null){
 			System.out.print(node.getNodeName());
