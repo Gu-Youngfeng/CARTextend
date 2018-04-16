@@ -8,13 +8,18 @@ import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
 
 public class SampleReader {
-	
+	/** Instances object, list of Instance */
 	private Instances allSamples;
-
+	/** Instance list, be equal to allSample*/
 	private List<Instance> arrIns;
-	
+	/** Feature (name) list*/
 	private String[] arrFeatures;
 	
+	/***
+	 * <p>To read data from the path. The data is saved in {@link#arrIns}, 
+	 * which can be obtained by function {@link#getSamples()}</p>
+	 * @param path
+	 */
 	SampleReader(String path){
 		
 		try {
@@ -28,7 +33,7 @@ public class SampleReader {
 			}
 			
 			//// index setting
-			allSamples.setClassIndex(allSamples.numInstances()-1);
+			allSamples.setClassIndex(allSamples.numAttributes()-1);
 			
 			//// samples and features initialization
 			arrIns = new ArrayList<Instance>();
@@ -48,7 +53,7 @@ public class SampleReader {
 		}	
 	}
 	
-	/** Return samples read from the path */
+	/** Return arrIns read from the path */
 	public List<Instance> getSamples(){
 		return arrIns;
 	}
